@@ -1,3 +1,5 @@
+using System.Collections;
+
 /// <summary>
 /// This queue is circular.  When people are added via AddPerson, then they are added to the 
 /// back of the queue (per FIFO rules).  When GetNextPerson is called, the next person
@@ -9,9 +11,9 @@
 /// </summary>
 public class TakingTurnsQueue
 {
-    private readonly PersonQueue _people = new();
+    private readonly Queue<Person> _people = new(); //initialized a private field(_people) of type PersonQueue, queue for managing persons objects.
 
-    public int Length => _people.Length;
+    public int Length => _people.Count;
 
     /// <summary>
     /// Add new people to the queue with a name and number of turns
@@ -20,8 +22,8 @@ public class TakingTurnsQueue
     /// <param name="turns">Number of turns remaining</param>
     public void AddPerson(string name, int turns)
     {
-        var person = new Person(name, turns);
-        _people.Enqueue(person);
+        var person = new Person(name, turns);// creates a new person object with the proved name and turns
+        _people.Enqueue(person);// adds the created person to the back of the _people queue using the enqueue method
     }
 
     /// <summary>
@@ -33,25 +35,31 @@ public class TakingTurnsQueue
     /// </summary>
     public Person GetNextPerson()
     {
-        if (_people.IsEmpty())
+        if (_people.Count == 0)
         {
             throw new InvalidOperationException("No one in the queue.");
         }
-        else
+
+        Person person = _people.Dequeue();// removes and retrieves the next person from the front of _people
+        if (person.Turns > 0)
         {
-            Person person = _people.Dequeue();
-            if (person.Turns > 1)
+            person.Turns -= 1;
+            if (person.Turns > 0)
             {
-                person.Turns -= 1;
                 _people.Enqueue(person);
             }
-
-            return person;
         }
+        else
+        {
+            _people.Enqueue(person);
+        }
+
+        return person;
+
     }
 
-    public override string ToString()
+    public override string ToString() //overrides the ToString method to return _people queue
     {
-        return _people.ToString();
+        return string.Join(", ", _people.Select(p => p.Name + "(" + p.Turns + ")"));
     }
 }
